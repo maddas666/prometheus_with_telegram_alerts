@@ -1,0 +1,33 @@
+groups:
+- name: targets
+  rules:
+  - alert: monitor_service_down
+    expr: up == 0
+    for: 30s
+    labels:
+      severity: critical
+    annotations:
+      summary: "Monitor service non-operational"
+      description: "Service {{ $labels.instance }} is down."
+
+- name: host
+  rules:
+  - alert: HostOutOfMemory
+    expr: node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes * 100 < 10
+    for: 2m
+    labels:
+      severity: warning
+    annotations:
+      summary: Host out of memory (instance {{ $labels.instance }})
+      description: Node memory is filling up (< 10% left)\n  VALUE = {{ $value }}\n  LABELS - {{ $labels }}
+
+- name: containers
+  rules:
+  - alert: gotenberg_down
+    expr: time() - container_last_seen{name="gotenberg"} > 5
+    for: 30s
+    labels:
+      severity: critical
+    annotations:
+      summary: "Gotenberg down"
+      description: "Gotenberg container is down for more than 5 seconds."
