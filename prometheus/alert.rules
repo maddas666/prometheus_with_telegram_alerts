@@ -10,24 +10,59 @@ groups:
       summary: "Monitor service non-operational"
       description: "Service {{ $labels.instance }} is down."
 
-- name: host
-  rules:
-  - alert: HostOutOfMemory
-    expr: node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes * 100 < 10
-    for: 2m
-    labels:
-      severity: warning
-    annotations:
-      summary: Host out of memory (instance {{ $labels.instance }})
-      description: Node memory is filling up (< 10% left)\n  VALUE = {{ $value }}\n  LABELS - {{ $labels }}
-
 - name: containers
   rules:
+
+  - alert: elk_down
+    expr: time() - container_last_seen{name="elk"} > 60
+    for: 30s
+    labels:
+      severity: critical
+    annotations:
+      summary: "ELK down"
+      description: "ELK container is down for more than 60 seconds."
+  
   - alert: gotenberg_down
-    expr: time() - container_last_seen{name="gotenberg"} > 5
+    expr: time() - container_last_seen{name="gotenberg"} > 60
     for: 30s
     labels:
       severity: critical
     annotations:
       summary: "Gotenberg down"
-      description: "Gotenberg container is down for more than 5 seconds."
+      description: "Gotenberg container is down for more than 60 seconds."
+
+  - alert: infolog24-identity_down
+    expr: time() - container_last_seen{name="infolog24-identity"} > 60
+    for: 30s
+    labels:
+      severity: critical
+    annotations:
+      summary: "infolog24-identity down"
+      description: "infolog24-identity container is down for more than 60 seconds."
+  
+  - alert: infolog24-internal-api_down
+    expr: time() - container_last_seen{name="infolog24-internal-api"} > 60
+    for: 30s
+    labels:
+      severity: critical
+    annotations:
+      summary: "infolog24-internal-api down"
+      description: "infolog24-internal-api container is down for more than 60 seconds."
+
+  - alert: infolog24-internal-web_down
+    expr: time() - container_last_seen{name="infolog24-internal-web"} > 60
+    for: 30s
+    labels:
+      severity: critical
+    annotations:
+      summary: "infolog24-internal-web down"
+      description: "infolog24-internal-web container is down for more than 60 seconds."
+  
+  - alert: infolog24-worker_down
+    expr: time() - container_last_seen{name="infolog24-worker"} > 60
+    for: 30s
+    labels:
+      severity: critical
+    annotations:
+      summary: "infolog24-worker down"
+      description: "infolog24-worker container is down for more than 60 seconds."
